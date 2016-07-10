@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Demo web worker</title>
+</head>
+<body>
+	<input type="text" id="nderet">
+	<button id="tombol">Hitung</button>
+	<div id="container"></div>
+	<img src="loading.gif" alt="">
+
+	<script>
+		
+		document.addEventListener('DOMContentLoaded', function(){
+
+			var container = document.getElementById('container');
+			var tombol = document.getElementById('tombol');
+			var input = document.getElementById('nderet');
+			// kita lakukan instansiasi objek worker dengan memanggil class Worker
+			// dengan alamat file yang berisi program untuk melakukan komputasi worker sebagai masukannya
+			var worker = new Worker('./worker.js');
+
+			tombol.addEventListener('click', function(){
+
+				// ok kita bersihkan terlebih dahulu hasil perhitungan sebelumnya
+				container.innerHTML = 'Melakukan perhitungan....';
+
+				// tanpa web worker 
+				// var result = Fibonacci(input.value);
+				// container.innerHTML = 'Hasil perhitungan adalah: ' + result;
+
+				/*
+				OK, sekarang komputasi fibonacci nya akan kita lakukan pada thread yang berbeda dengan menggunakan web worker
+				*/
+				worker.postMessage(input.value);
+
+				// ok thats is, lets try it out!!!
+			});
+
+			// kita tangkap kembalian dari fungsi postMessage() yang ada di worker.js
+			worker.addEventListener('message', function(event){
+
+				var result = event.data;
+				container.innerHTML = 'Hasil perhitungan adalah: ' + result;
+
+			});
+
+		});
+
+		/**
+			fungsi untuk menghitung deret fibonacci
+		*/
+		function Fibonacci(number) {
+
+			if ( number < 3 ) {
+				return 1;
+			} else {
+				return Fibonacci(number - 1) + Fibonacci(number - 2);
+			}
+
+		}
+	</script>
+</body>
+</html>
